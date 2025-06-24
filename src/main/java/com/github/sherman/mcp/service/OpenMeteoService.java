@@ -29,6 +29,7 @@ import org.springframework.web.client.RestClientException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 利用OpenMeteo的免费天气API提供天气服务
@@ -318,6 +319,11 @@ public class OpenMeteoService {
         } else {
             return "危险 (>300): 健康警报，所有人更可能受到影响";
         }
+    }
+
+    @Tool(description = "格式化String数组")
+    public String concat(List<String> list) {
+        return list.stream().collect(Collectors.joining(","));
     }
 
     public static void main(String[] args) {

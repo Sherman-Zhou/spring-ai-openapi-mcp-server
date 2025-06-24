@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -52,14 +53,10 @@ public class OpenApiSchemaConverter {
         // Handle request body
         if (operation.getRequestBody() != null) {
             RequestBody requestBody = operation.getRequestBody();
-            if (requestBody.getContent() != null && requestBody.getContent().containsKey("application/json")) {
-                Schema bodySchema = requestBody.getContent().get("application/json").getSchema();
+            if (requestBody.getContent() != null) {
+                List<String> keys = requestBody.getContent().keySet().stream().collect(Collectors.toList());
+                Schema bodySchema = requestBody.getContent().get(keys.get(0)).getSchema();
                 if (bodySchema != null) {
-//                    try {
-//                        log.info("bodySchema:{}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(bodySchema));
-//                    } catch (JsonProcessingException e) {
-//                        throw new RuntimeException(e);
-//                    }
                     // For request body, we'll merge the properties into the main schema
                     JsonNode bodyJsonSchema = convertSchemaToJsonSchema(openAPI, bodySchema);
                     // Recursively resolve $ref until we get properties
@@ -85,6 +82,10 @@ public class OpenApiSchemaConverter {
                                 }
                             }
                         });
+                    }else if(!(bodySchema instanceof ObjectSchema) && !(bodySchema instanceof ComposedSchema) ) {
+                       log.info("bodySchema:{}", bodySchema);
+                        String name = (String)operation.getExtensions().get("x-codegen-request-body-name");
+                        properties.set(name, bodyJsonSchema);
                     }
 
                     if (bodyJsonSchema.has("required")) {

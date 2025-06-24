@@ -31,7 +31,7 @@
 		<!-- Spring AI -->
 		<spring-ai.version>1.0.0</spring-ai.version>
 		<!--Swagger -->
-		<swagger.version>2.1.29</swagger.version>
+		<swagger.version>2.1.30</swagger.version>
 	</properties>
 	<dependencies>
 		<dependency>

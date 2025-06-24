@@ -2,8 +2,11 @@ package com.github.sherman.mcp.tool.openapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.parser.core.models.ParseOptions;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
@@ -26,6 +30,8 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OpenApiSchemaConverter schemaConverter;
     private final SwaggerProperties swaggerProperties;
+
+    private final Map<String, String> specKeyToSecurityHeader = new ConcurrentHashMap<>();
 
     public OpenApiToolCallbackProvider(OpenApiSchemaConverter schemaConverter, SwaggerProperties swaggerProperties) {
         this.schemaConverter = schemaConverter;
@@ -51,11 +57,18 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
             String serverUrl = specConfig.getServerUrl();
             String specKey = entry.getKey();
             try {
-               // String spec = new ClassPathResource(specConfigUrl).getContentAsString(StandardCharsets.UTF_8);
-                OpenAPI openAPI = new OpenAPIParser().readLocation(specConfigUrl, null, null).getOpenAPI();
+                ParseOptions options = new ParseOptions();
+//                options.setResolveFully(true);
+//                options.setResolveRequestBody(true);
+//                options.setResolve(true);
+                OpenAPI openAPI = new OpenAPIParser().readLocation(specConfigUrl, null, options).getOpenAPI();
 
                 if (openAPI == null) {
                     throw new IllegalStateException("Failed to parse OpenAPI specification: " + specConfigUrl);
+                }
+                String securityHeaderName = extractSecurityHeaderName(openAPI);
+                if (securityHeaderName != null) {
+                    specKeyToSecurityHeader.put(specKey, securityHeaderName);
                 }
 
                 openAPI.getPaths().forEach((path, pathItem) -> {
@@ -194,5 +207,18 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
                 }
             }
         };
+    }
+
+    private String extractSecurityHeaderName(OpenAPI openAPI) {
+        Components components = openAPI.getComponents();
+        if (components != null && components.getSecuritySchemes() != null) {
+            for (Map.Entry<String, SecurityScheme> entry : components.getSecuritySchemes().entrySet()) {
+                SecurityScheme scheme = entry.getValue();
+                if (scheme.getType() == SecurityScheme.Type.APIKEY && "header".equalsIgnoreCase(scheme.getIn().toString())) {
+                    return scheme.getName();
+                }
+            }
+        }
+        return null;
     }
 }

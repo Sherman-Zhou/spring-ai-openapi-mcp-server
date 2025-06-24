@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: 使用自定义Header(JWT-Token)的API示例
+  version: 1.0.0
+  description: 演示如何使用自定义Header实现JWT认证
+
+servers:
+  - url: https://api.example.com/v1
+
+# 1. 定义安全方案 - 使用自定义Header
+components:
+  securitySchemes:
+    JwtTokenAuth:   # 安全方案名称
+      type: apiKey  # 类型为apiKey
+      in: header    # 位于header中
+      name: jwt-token  # 自定义header名称
+      description: 使用登录接口返回的`token`字段值作为此头的值
+
+  # 定义数据模型
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          example: "password123"
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 用于jwt-token请求头的主要访问令牌
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expiresAt:
+          type: string
+          format: date-time
+          description: 过期时间
+          example: "2023-12-31T23:59:59Z"
+
+# 2. 定义登录接口获取令牌
+paths:
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: 用户登录获取JWT令牌
+      description: 使用用户名密码登录，获取JWT令牌（将用于jwt-token header）
+      operationId: loginUser
+      requestBody:
+        description: 登录凭证
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: 用户名或密码错误
+
+  # 3. 需要认证的示例接口
+  /users/me:
+    get:
+      tags: [Users]
+      summary: 获取当前用户信息
+      description: 需要提供jwt-token header
+      operationId: getCurrentUser
+      security:   # 此接口需要JWT认证
+        - JwtTokenAuth: []
+      responses:
+        '200':
+          description: 成功获取用户信息
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  username:
+                    type: string
+                  email:
+                    type: string
+        '401':
+          description: 未提供或无效的token
+
+# 4. 全局安全要求（可选）
+# 如果大多数接口都需要认证，可以设置全局安全
+security:
+  - JwtTokenAuth: []
