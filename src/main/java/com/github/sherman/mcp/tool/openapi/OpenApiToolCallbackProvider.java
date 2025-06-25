@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
@@ -16,13 +17,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
 
     private final List<ToolCallback> toolCallbacks;
@@ -88,6 +88,14 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
         }
         return callbacks;
     }
+
+    private String convertRequestParamater(Object value ){
+        if(value instanceof Collection){
+            return ((Collection<String>) value).stream().collect(Collectors.joining(","));
+        }
+        return String.valueOf( value);
+    }
+
 
     private ToolCallback createToolCallback(String functionName, String description, String path,
                                             io.swagger.v3.oas.models.PathItem.HttpMethod method, String serverUrl,
@@ -168,7 +176,7 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
 
                     // Process path parameters
                     for (var entry : pathParams.entrySet()) {
-                        processedPath = processedPath.replace("{" + entry.getKey() + "}", String.valueOf(entry.getValue()));
+                        processedPath = processedPath.replace("{" + entry.getKey() + "}", convertRequestParamater(entry.getValue()));
                     }
 
                     // Build URI with query parameters
@@ -180,7 +188,7 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
                             if (!first) {
                                 uriBuilder.append("&");
                             }
-                            uriBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+                            uriBuilder.append(entry.getKey()).append("=").append(convertRequestParamater(entry.getValue()));
                             first = false;
                         }
                     }
@@ -197,10 +205,13 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
 
                     String result;
                     if (body != null) {
+                        log.info("start to call api with body: {} {}-> {}",httpMethod, uriBuilder, objectMapper.writeValueAsString(body) );
                         result = ((WebClient.RequestBodySpec) requestSpec).bodyValue(body).retrieve().bodyToMono(String.class).block();
                     } else {
                         result = requestSpec.retrieve().bodyToMono(String.class).block();
+                        log.info("start to call api:{} {}",httpMethod, uriBuilder);
                     }
+                    log.info("end api call: {}", result);
                     return result != null ? result : "";
                 } catch (Exception e) {
                     return "Error executing API call " + functionName + ": " + e.getMessage();

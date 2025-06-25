@@ -36,7 +36,7 @@ Edit `src/main/resources/application.yml`:
 swagger:
   specs:
     example:
-      url: classpath:openapi.yaml
+      url: classpath:petStore.yaml
       serverUrl: http://localhost:8080
 ```
 

@@ -40,9 +40,9 @@ spring:
 swagger:
   specs:
     jhipster:
-#      url: jhipster-swagger.json
-      url: http://localhost:8888/v3/api-docs/springdocDefault
+      url: jwt.yml
+#      url: http://localhost:8888/v3/api-docs/springdocDefault
       server-url: http://localhost:8889
     petstore:
-      url: openapi.yaml
+      url: petStore.yaml
       server-url: https://petstore.swagger.io/v2

@@ -48,100 +48,100 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Pet'
-#  /pet/findByStatus:
-#    get:
-#      summary: Finds Pets by status
-#      description: Multiple status values can be provided with comma separated strings
-#      operationId: findPetsByStatus
-#      parameters:
-#        - name: status
-#          in: query
-#          description: Status values that need to be considered for filter
-#          required: true
-#          schema:
-#            type: array
-#            items:
-#              type: string
-#              enum: [available, pending, sold]
-#            minItems: 1
-#            uniqueItems: true
-#      responses:
-#        '200':
-#          description: successful operation
-#          content:
-#            application/json:
-#              schema:
-#                type: array
-#                items:
-#                  $ref: '#/components/schemas/Pet'
-#  /pet/{petId}/uploadImage:
-#    post:
-#      summary: Uploads an image
-#      description: Upload an image for a pet
-#      operationId: uploadFile
-#      parameters:
-#        - name: petId
-#          in: path
-#          description: ID of pet to update
-#          required: true
-#          schema:
-#            type: integer
-#            format: int64
-#        - name: additionalMetadata
-#          in: query
-#          description: Additional data to pass to server
-#          required: false
-#          schema:
-#            type: string
-#      requestBody:
-#        content:
-#          multipart/form-data:
-#            schema:
-#              type: object
-#              properties:
-#                file:
-#                  type: string
-#                  format: binary
-#                  description: file to upload
-#      responses:
-#        '200':
-#          description: successful operation
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/ApiResponse'
-#  /store/inventory:
-#    get:
-#      summary: Returns pet inventories by status
-#      description: Returns a map of status codes to quantities
-#      operationId: getInventory
-#      security:
-#        - api_key: []
-#      responses:
-#        '200':
-#          description: successful operation
-#          content:
-#            application/json:
-#              schema:
-#                type: object
-#                additionalProperties:
-#                  type: integer
-#                  format: int32
-#  /user:
-#    post:
-#      summary: Create user
-#      description: This can only be done by the logged in user
-#      operationId: createUser
-#      requestBody:
-#        description: Created user object
-#        required: true
-#        content:
-#          application/json:
-#            schema:
-#              $ref: '#/components/schemas/User'
-#      responses:
-#        '200':
-#          description: successful operation
+  /pet/findByStatus:
+    get:
+      summary: Finds Pets by status
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findPetsByStatus
+      parameters:
+        - name: status
+          in: query
+          description: Status values that need to be considered for filter
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [available, pending, sold]
+            minItems: 1
+            uniqueItems: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+  /pet/{petId}/uploadImage:
+    post:
+      summary: Uploads an image
+      description: Upload an image for a pet
+      operationId: uploadFile
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: additionalMetadata
+          in: query
+          description: Additional data to pass to server
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: file to upload
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+  /store/inventory:
+    get:
+      summary: Returns pet inventories by status
+      description: Returns a map of status codes to quantities
+      operationId: getInventory
+      security:
+        - api_key: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int32
+  /user:
+    post:
+      summary: Create user
+      description: This can only be done by the logged in user
+      operationId: createUser
+      requestBody:
+        description: Created user object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: successful operation
 components:
   schemas:
     Pet:

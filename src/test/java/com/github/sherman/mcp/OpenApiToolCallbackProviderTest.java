@@ -65,7 +65,7 @@ public class OpenApiToolCallbackProviderTest {
     @Test
     public void testOpenApiYamlHandling() throws Exception {
         // Load the OpenAPI YAML spec
-        String spec = new ClassPathResource("openapi.yaml").getContentAsString(StandardCharsets.UTF_8);
+        String spec = new ClassPathResource("petStore.yaml").getContentAsString(StandardCharsets.UTF_8);
         OpenAPI openAPI = new OpenAPIParser().readContents(spec, null, null).getOpenAPI();
         assertNotNull(openAPI, "OpenAPI should not be null");
 
@@ -180,7 +180,7 @@ public class OpenApiToolCallbackProviderTest {
     @Test
     public void testOpenApiYamlComprehensive() throws Exception {
         // Load the OpenAPI YAML spec
-        String spec = new ClassPathResource("openapi.yaml").getContentAsString(StandardCharsets.UTF_8);
+        String spec = new ClassPathResource("petStore.yaml").getContentAsString(StandardCharsets.UTF_8);
         OpenAPI openAPI = new OpenAPIParser().readContents(spec, null, null).getOpenAPI();
         assertNotNull(openAPI, "OpenAPI should not be null");
 
@@ -220,7 +220,7 @@ public class OpenApiToolCallbackProviderTest {
         String jhipsterSpec = new ClassPathResource("jhipster-swagger.json").getContentAsString(StandardCharsets.UTF_8);
         OpenAPI jhipsterOpenAPI = new OpenAPIParser().readContents(jhipsterSpec, null, null).getOpenAPI();
 
-        String yamlSpec = new ClassPathResource("openapi.yaml").getContentAsString(StandardCharsets.UTF_8);
+        String yamlSpec = new ClassPathResource("petStore.yaml").getContentAsString(StandardCharsets.UTF_8);
         OpenAPI yamlOpenAPI = new OpenAPIParser().readContents(yamlSpec, null, null).getOpenAPI();
 
         OpenApiSchemaConverter schemaConverter = new OpenApiSchemaConverter();
@@ -453,7 +453,7 @@ public class OpenApiToolCallbackProviderTest {
         OpenApiSchemaConverter schemaConverter = new OpenApiSchemaConverter();
 
         // Create a test configuration with multiple specs
-        // Note: This test assumes both jhipster-swagger.json and openapi.yaml are available
+        // Note: This test assumes both jhipster-swagger.json and petStore.yaml are available
         // In a real scenario, this would be configured via application.yml
 
         // Load JHipster spec
@@ -462,7 +462,7 @@ public class OpenApiToolCallbackProviderTest {
         assertNotNull(jhipsterOpenAPI, "JHipster OpenAPI should not be null");
 
         // Load Pet Store spec
-        String petStoreSpec = new ClassPathResource("openapi.yaml").getContentAsString(StandardCharsets.UTF_8);
+        String petStoreSpec = new ClassPathResource("petStore.yaml").getContentAsString(StandardCharsets.UTF_8);
         OpenAPI petStoreOpenAPI = new OpenAPIParser().readContents(petStoreSpec, null, null).getOpenAPI();
         assertNotNull(petStoreOpenAPI, "Pet Store OpenAPI should not be null");
 
