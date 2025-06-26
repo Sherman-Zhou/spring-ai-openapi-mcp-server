@@ -33,10 +33,10 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
 
     private final Map<String, String> specKeyToSecurityHeader = new ConcurrentHashMap<>();
 
-    public OpenApiToolCallbackProvider(OpenApiSchemaConverter schemaConverter, SwaggerProperties swaggerProperties) {
+    public OpenApiToolCallbackProvider(OpenApiSchemaConverter schemaConverter, SwaggerProperties swaggerProperties, WebClient webClient) {
         this.schemaConverter = schemaConverter;
         this.swaggerProperties = swaggerProperties;
-        this.webClient = WebClient.builder().build();
+        this.webClient = webClient;
         this.toolCallbacks = loadToolCallbacksFromMultipleOpenApiSpecs();
     }
 
@@ -211,9 +211,14 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
                         result = requestSpec.retrieve().bodyToMono(String.class).block();
                         log.info("start to call api:{} {}",httpMethod, uriBuilder);
                     }
-                    log.info("end api call: {}", result);
-                    return result != null ? result : "";
+                    if(result.length() < 256 * 1024){
+                        log.info("end api call: {}", result);
+                    }else {
+                        log.info("end api call: {}...", result.substring(0, 256 * 1024));
+                    }
+                    return result;
                 } catch (Exception e) {
+                    log.error("Error executing API call {} : {}",  functionName, e.getMessage(), e);
                     return "Error executing API call " + functionName + ": " + e.getMessage();
                 }
             }
