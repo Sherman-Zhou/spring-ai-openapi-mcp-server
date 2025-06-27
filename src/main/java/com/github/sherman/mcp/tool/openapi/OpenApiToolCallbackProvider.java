@@ -160,17 +160,20 @@ public class OpenApiToolCallbackProvider implements ToolCallbackProvider {
                             bodyParams = new HashMap<>(requestMap);
                             pathParams.forEach(bodyParams::remove);
                             queryParams.forEach(bodyParams::remove);
+                            headerParams.forEach(bodyParams::remove);
                             body = bodyParams;
                         } else {
                             // For requests without body, treat remaining as query params
                             bodyParams = new HashMap<>(requestMap);
                             pathParams.forEach(bodyParams::remove);
+                            headerParams.forEach(bodyParams::remove);
                             queryParams.putAll(bodyParams);
                         }
                     } else {
                         // For GET requests, everything not in path goes to query
                         bodyParams = new HashMap<>(requestMap);
                         pathParams.forEach(bodyParams::remove);
+                        headerParams.forEach(bodyParams::remove);
                         queryParams.putAll(bodyParams);
                     }
 
